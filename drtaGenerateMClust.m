@@ -1,4 +1,4 @@
-function drtaGenerateMClust(hObject, handles)
+function drtaGenerateMClust(handles)
 % hObject    handle to drtaThresholdPush (see GCBO)
 % handles    structure with handles and user data (see GUIDATA)
 
@@ -17,7 +17,7 @@ for tets=1:4
     %for trialNo=1:2
     for trialNo=1:handles.draq_d.noTrials
         
-        trialNo
+        disp(trialNo)
         tic
         
         

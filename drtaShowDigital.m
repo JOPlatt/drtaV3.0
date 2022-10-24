@@ -1,4 +1,8 @@
 function  drtaShowDigital(handles)
+
+% //This file will need functions changed to match the new GUI
+
+
 %UNTITLED Summary of this function goes here
 %   Detailed explanation goes here
 
@@ -108,19 +112,6 @@ for (ii=18:handles.draq_p.no_chans-1)
             ylabel('Sniffing');
         case 19
             ylabel('Lick');
-            pffft=1;
-%             try
-%                 close 1
-%             catch
-%             end
-%             
-%             hFig1 = figure(1);
-%             set(hFig1, 'units','normalized','position',[.15 .6 .5 .23])
-%             ax=gca;ax.LineWidth=3;
-%             
-%              plot([1:length(this_data(ii_from:ii_to))]/handles.draq_p.ActualRate,this_data(ii_from:ii_to),'-b');
-            
-            
         case 20
             ylabel('In port');
         case 21
@@ -176,14 +167,13 @@ try
     
     %This code is here to plot the digital data in a separate figure
        
-%     try
+%      try
 %         close 1
 %     catch
 %     end
 %     
 %     hFig1 = figure(1);
-%     set(hFig1, 'units','normalized','position',[.15 .6 .5 .23])
-%     ax=gca;ax.LineWidth=3;
+%     set(hFig1, 'units','normalized','position',[.15 .6 .7 .23])
 %     
 %     plot(shiftdata_all(ii_from:ii_to));
 

@@ -18,7 +18,7 @@ function drta_read_Intan_RHD2000_file
 % >> plot(t_amplifier, amplifier_data(1,:))
 
 [file, path, filterindex] = ...
-    uigetfile('*.rhd', 'Select an RHD2000 Data File', 'MultiSelect', 'off')
+    uigetfile('*.rhd', 'Select an RHD2000 Data File', 'MultiSelect', 'off');
 
 if (file == 0)
     return;

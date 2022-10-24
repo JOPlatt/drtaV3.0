@@ -4,7 +4,7 @@ function handles=drtaSubtractChans(handles)
 %
 % Plots preview for spike trains
 %
-%
+% //No changes need to be made to the functions
 
 
 

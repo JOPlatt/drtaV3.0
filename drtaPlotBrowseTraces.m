@@ -1,4 +1,4 @@
-function handles=drtaPlotBrowseTraces(handles)
+function handles=drtaPlotBrowseTraces(app_main,app_plot,handles)
 
 % draqPlotSpikePreview(handles)
 %
@@ -11,15 +11,15 @@ persistent auto_sign;
 if isempty(auto_sign)
     auto_sign=1;
 end
+% %Location of plots
+% left_axis=0.17;
+% right_axis=0.78;
+% bottom_offset=0.145;
+% height_delta=0.782;
 
-%Location of plots
-left_axis=0.17;
-right_axis=0.78;
-bottom_offset=0.145;
-height_delta=0.782;
-
-figure(handles.w.drtaBrowseTraces);
-set(gcf,'doublebuffer','on') %Reduce plot flicker
+%figure(handles.w.drtaBrowseTraces.UIFigure);
+set(handles.w.drtaBrowseTraces.UIFigure,'doublebuffer','on') %Reduce plot flicker
+% set(gcf,'doublebuffer','on') %Reduce plot flicker
 
 scaling = handles.draq_p.scaling;
 offset = handles.draq_p.offset;
@@ -70,30 +70,39 @@ try
 %     plot(shiftdata30)
     
     %Hit
+    %{
+    ********Need to figure out what each conditon is used for********
+    %}
     if sum(shiftdata30==8)>0.05*handles.draq_p.ActualRate
-        drtaBrowseTraces('setTrialsOutcome',handles.w.drtaBrowseTraces,'Hit ');
+        setTrialsOutcome(app_plot,handles,'Hit');
+%         drtaBrowseTraces('setTrialsOutcome',handles.w.drtaBrowseTraces,'Hit ');
         %set(handles.trialOutcome,'String','Hit ');
     else
         %Miss
         if sum(shiftdata30==10)>0.05*handles.draq_p.ActualRate
-            drtaBrowseTraces('setTrialsOutcome',handles.w.drtaBrowseTraces,'Miss');
+            setTrialsOutcome(app_plot,handles,'Miss');
+%             drtaBrowseTraces('setTrialsOutcome',handles.w.drtaBrowseTraces,'Miss');
             %set(handles.trialOutcome,'String','Miss');
         else
             %CR
             if sum(shiftdata30==12)>0.05*handles.draq_p.ActualRate
-                drtaBrowseTraces('setTrialsOutcome',handles.w.drtaBrowseTraces,'CR  ');
+                setTrialsOutcome(app_plot,handles,'CR');
+%                 drtaBrowseTraces('setTrialsOutcome',handles.w.drtaBrowseTraces,'CR  ');
                 %set(handles.trialOutcome,'String','CR  ');
             else
                 %FA
                 if sum(shiftdata30==14)>0.05*handles.draq_p.ActualRate
-                    drtaBrowseTraces('setTrialsOutcome',handles.w.drtaBrowseTraces,'FA  ');
+                    setTrialsOutcome(app_plot,handles,'FA');
+%                     drtaBrowseTraces('setTrialsOutcome',handles.w.drtaBrowseTraces,'FA  ');
                 else
                     %Short
                     if(length(find(shiftdata30>=1,1,'first'))==1)&(length(find(shiftdata30==8,1,'first'))~=1)&(length(find(shiftdata30==10,1,'first'))~=1)...
                             (length(find(shiftdata30==12,1,'first'))~=1)&(length(find(shiftdata30>0))>handles.draq_p.ActualRate*0.75)
-                        drtaBrowseTraces('setTrialsOutcome',handles.w.drtaBrowseTraces,'Short');
+                        setTrialsOutcome(app_plot,handles,'Short');
+%                         drtaBrowseTraces('setTrialsOutcome',handles.w.drtaBrowseTraces,'Short');
                     else
-                        drtaBrowseTraces('setTrialsOutcome',handles.w.drtaBrowseTraces,'Inter');
+                        setTrialsOutcome(app_plot,handles,'Inter');
+%                         drtaBrowseTraces('setTrialsOutcome',handles.w.drtaBrowseTraces,'Inter');
                     end
                 end
             end
@@ -101,7 +110,7 @@ try
     end
 catch
 end
-
+%***************************************************************
 if (handles.p.whichPlot~=11)
     %Display analog records
     if (handles.p.which_display==1)
@@ -121,6 +130,15 @@ if (handles.p.whichPlot~=11)
 %                 baseline=repmat(mean_data,szdata(1),1);
 %                 data1=data-baseline;
             case {2,3,4,5,6,7,8,9,10}
+                %{
+                ---------------------------------------------------------
+                Filters the displayed graph(s) by only showong the chosen
+                bandwidth. 
+                Choices: 2-full spectra, 3-High Theta, 4-Full Theta,
+                5-Full Beta, 6-Low Gamma, 7-High Gamma, 8-Full Gamma,
+                9 or 10-Spike range 500-5000
+                ---------------------------------------------------------
+                %}
                 %Filter with different bandwidths
                 switch handles.p.whichPlot
                     case 2
@@ -134,7 +152,7 @@ if (handles.p.whichPlot~=11)
                     case 6 %Gamma1 35-65
                         fpass=[35 65];
                     case 7 %Gamma2 65-95
-                        fpass=[65 95];;
+                        fpass=[65 95];
                     case 8 %Gamma 35-95
                         fpass=[35 95];
                     case {9,10} %Spikes 500-5000
@@ -153,7 +171,11 @@ if (handles.p.whichPlot~=11)
         
         
         
-        
+        %{
+        ---------------------------------------------------------
+        Adjusting changels for ????????????
+        ---------------------------------------------------------
+        %}
         if (handles.p.doSubtract==1)
             data2=data1;
             for tetr=1:4
@@ -175,22 +197,24 @@ if (handles.p.whichPlot~=11)
                 end
             end
         end
-        
+        %{
+        -----------------------------------------------------------
+        Creating the plots for each of the 16 chanels
+        -----------------------------------------------------------
+        %}
         CHID = [1:16];
-        
-        for (ii=1:noch)
-            bottom=bottom_offset+(0.80/noch)*(ii-0.5);
-            height=height_delta/noch;
-            s_handle(ii)=subplot('Position', [left_axis bottom right_axis height]);
+%         drta_ax = handles.w.drtaBrowseTraces.GridLayout;
+        for ii=1:noch
+            %{
+            Processing the data for each plot
+            
+            %}
+
             ii_from=floor((handles.draq_p.acquire_display_start+handles.p.start_display_time)...
                 *handles.draq_p.ActualRate+1);
             ii_to=floor((handles.draq_p.acquire_display_start+handles.p.start_display_time...
                 +handles.p.display_interval)*handles.draq_p.ActualRate);
-            
-            plot(data1(ii_from:ii_to,CHID(ii)));
-            
-            
-            
+
             sz_dat=length(data1);
             tim=[0 sz_dat];
             
@@ -239,41 +263,47 @@ if (handles.p.whichPlot~=11)
             if handles.p.setThr==1
                 handles.p.threshold(ii)=handles.p.thrToSet;
             end
+            %{
+            Setting up and plotting the processed data
+            %}
+%             bottom=bottom_offset+(0.80/noch)*(ii-0.5);
+%             height=height_delta/noch;
+
+            plot(handles.plot.s_handle(ii),data1(ii_from:ii_to,CHID(ii)))             
             
+            hold(handles.plot.s_handle(ii),"on")
             
-            
-            hold on
-            
-            plot(tim,[handles.p.threshold(ii) handles.p.threshold(ii)],'r');
+            plot(handles.plot.s_handle(ii),[handles.p.threshold(ii) handles.p.threshold(ii)],'r');
             
             if exist('odor_on')~=0
                 if ~isempty(odor_on)
-                    plot([odor_on odor_on],[-handles.draq_p.prev_ylim(ii) handles.draq_p.prev_ylim(ii)],'r');
+                    plot(handles.plot.s_handle(ii),[odor_on odor_on],[-handles.draq_p.prev_ylim(ii) handles.draq_p.prev_ylim(ii)],'r');
                 end
             end
+
             
             
-            drtaThresholdSnips('update_p',handles.w.drtaThresholdSnips,handles);
+%             drtaThresholdSnips('update_p',handles.w.drtaThresholdSnips,handles);
             
             
-            hold off
+            hold(handles.plot.s_handle(ii),"off")
             
-            
-            ylim(s_handle(ii),[-handles.draq_p.prev_ylim(ii) handles.draq_p.prev_ylim(ii)]);
-            set(gca,'YTick',[-handles.draq_p.prev_ylim(ii)+(handles.draq_p.prev_ylim(ii)/3) handles.draq_p.prev_ylim(ii)-(handles.draq_p.prev_ylim(ii)/3)]);
+            ylim(handles.plot.s_handle(ii),[-handles.draq_p.prev_ylim(ii) handles.draq_p.prev_ylim(ii)]);
+            handles.plot.s_handle(ii).YTick = [-handles.draq_p.prev_ylim(ii)+(handles.draq_p.prev_ylim(ii)/3) handles.draq_p.prev_ylim(ii)-(handles.draq_p.prev_ylim(ii)/3)];
             tick_label={};
             tick_label{1}=num2str(floor(-2*handles.draq_p.prev_ylim(ii)/3));
             tick_label{2}=num2str(floor(2*handles.draq_p.prev_ylim(ii)/3));
-            set(gca,'YTickLabel',tick_label);
+            handles.plot.s_handle(ii).YTickLabel = tick_label;
             
-            xlim(s_handle(ii),[1 1+handles.p.display_interval*handles.draq_p.ActualRate]);
-            ylabel(s_handle(ii),num2str(ii));
+            handles.plot.s_handle(ii).XLim = [1 1+handles.p.display_interval*handles.draq_p.ActualRate];
+%             ylabel(s_handle(ii),num2str(ii));
             if ii==1
                 %xlabel('Time (sec)');
                 dt=handles.p.display_interval/5;
                 dt=round(dt*10^(-floor(log10(dt))))/10^(-floor(log10(dt)));
                 d_samples=dt*handles.draq_p.ActualRate;
-                set(gca,'XTick',0:d_samples:handles.p.display_interval*handles.draq_p.ActualRate);
+                handles.plot.s_handle(ii).XTick = 0:d_samples:handles.p.display_interval*handles.draq_p.ActualRate;
+                handles.plot.s_handle(ii).FontSize = 12;
                 time=handles.p.start_display_time;
                 jj=1;
                 while time<(handles.p.start_display_time+handles.p.display_interval)
@@ -282,10 +312,10 @@ if (handles.p.whichPlot~=11)
                     jj=jj+1;
                 end
                 tick_label{jj}=num2str(time);
-                set(gca,'XTickLabel',tick_label);
+                handles.plot.s_handle(ii).XTickLabel = tick_label;
             else
-                set(gca,'XTick',0:d_samples:handles.p.display_interval*handles.draq_p.ActualRate);
-                set(gca,'XTickLabel','');
+                handles.plot.s_handle(ii).XTick = 0:d_samples:handles.p.display_interval*handles.draq_p.ActualRate;
+                handles.plot.s_handle(ii).XTickLabel = '';
             end
             
         end
@@ -396,7 +426,7 @@ if (handles.p.whichPlot~=11)
         hold off
         
         
-        plot(data1(ii_from:ii_to,CHID(ii)),'-b');
+        plot(s_handle(ii),data1(ii_from:ii_to,CHID(ii)),'-b');
         hold on
         
 %         Commented out plot the trace to use in a figure for publication
@@ -423,15 +453,15 @@ if (handles.p.whichPlot~=11)
         
         
         two_half_med_SD=2.5*median(sdvec);
-        plot([1 ii_to-ii_from+1],[two_half_med_SD two_half_med_SD],'-c');
+        plot(s_handle(ii),[1 ii_to-ii_from+1],[two_half_med_SD two_half_med_SD],'-c');
         hold on
-        plot([1 ii_to-ii_from+1],[-two_half_med_SD -two_half_med_SD],'-c');
+        plot(s_handle(ii),[1 ii_to-ii_from+1],[-two_half_med_SD -two_half_med_SD],'-c');
         
         
         three_t_med_SD=3*median(sdvec);
-        plot([1 ii_to-ii_from+1],[three_t_med_SD three_t_med_SD],'-y');
+        plot(s_handle(ii),[1 ii_to-ii_from+1],[three_t_med_SD three_t_med_SD],'-y');
         hold on
-        plot([1 ii_to-ii_from+1],[-three_t_med_SD -three_t_med_SD],'-y');
+        plot(s_handle(ii),[1 ii_to-ii_from+1],[-three_t_med_SD -three_t_med_SD],'-y');
         
 
         
@@ -442,7 +472,7 @@ if (handles.p.whichPlot~=11)
         
         hold on
         if isfield(handles.p,'last_threshold')
-            plot(tim,[handles.p.last_threshold(ii) handles.p.last_threshold(ii)],'y');
+            plot(s_handle(ii),tim,[handles.p.last_threshold(ii) handles.p.last_threshold(ii)],'y');
         end
         
         %Set threshold if requested by user
@@ -479,12 +509,12 @@ if (handles.p.whichPlot~=11)
         
         drtaThresholdSnips('update_p',handles.w.drtaThresholdSnips,handles);
         
-        plot(tim,[handles.p.threshold(ii) handles.p.threshold(ii)],'r');
-        thr=handles.p.threshold(ii)
+        plot(s_handle(ii),tim,[handles.p.threshold(ii) handles.p.threshold(ii)],'r');
+        thr= handles.p.threshold(ii);
         
         if exist('odor_on')~=0
             if ~isempty(odor_on)
-                plot([odor_on odor_on],[-handles.draq_p.prev_ylim(ii) handles.draq_p.prev_ylim(ii)],'r');
+                plot(s_handle(ii),[odor_on odor_on],[-handles.draq_p.prev_ylim(ii) handles.draq_p.prev_ylim(ii)],'r');
             end
         end
         

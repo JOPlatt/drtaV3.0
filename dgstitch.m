@@ -20,7 +20,7 @@ no_files=1;
 enter_more_files=1;
 
 while enter_more_files==1
-    choice=questdlg('Would you like to enter another file?','Enter file')
+    choice=questdlg('Would you like to enter another file?','Enter file');
     
     if strcmp(choice,'Yes')
         [FileName2,PathName2] = uigetfile('*.mat','Select second .mat file to stitch');
@@ -72,4 +72,4 @@ for ii=1:no_files
 end
 fclose(fidw);
 
-pffft=1
+pffft=1;

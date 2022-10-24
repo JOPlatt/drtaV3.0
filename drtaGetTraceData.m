@@ -1,11 +1,9 @@
 % --- Executes on button press in drtaBrowseDraPush.
 function [data_per_trial]=drtaGetTraceData(handles)
-% hObject    handle to drtaBrowseDraPush (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-
+%{
+Determining if the data is dg or dra
 %Note: two bytes per sample (uint16)
+%}
 switch handles.draq_p.dgordra
     case 1
         %This code for dra is old and likely does not work
