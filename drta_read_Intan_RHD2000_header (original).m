@@ -46,7 +46,7 @@ end
 data_file_main_version_number = fread(fid, 1, 'int16');
 data_file_secondary_version_number = fread(fid, 1, 'int16');
 
-fprintf(1, '\n');
+ReadoutUpdate(handles,(1, '\n'));
 fprintf(1, 'Reading Intan Technologies RHD2000 Data File, Version %d.%d\n', ...
     data_file_main_version_number, data_file_secondary_version_number);
 fprintf(1, '\n');
